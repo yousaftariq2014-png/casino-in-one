@@ -10,15 +10,19 @@ import {
   ArrowRight, 
   Users, 
   ShieldCheck, 
-  Zap, 
-  Trophy 
+  Award,
+  Lock,
+  CheckCircle2,
+  FileCheck,
+  TrendingUp
 } from 'lucide-react';
 
 interface LobbyProps {
   onSelectGame: (game: GameType) => void;
+  onOpenCertificates?: () => void;
 }
 
-export const Lobby: React.FC<LobbyProps> = ({ onSelectGame }) => {
+export const Lobby: React.FC<LobbyProps> = ({ onSelectGame, onOpenCertificates }) => {
   const { balance, liveWins, setShowBonusWheel } = useCasino();
   const [jackpot, setJackpot] = useState(1489240.50);
 
@@ -34,165 +38,227 @@ export const Lobby: React.FC<LobbyProps> = ({ onSelectGame }) => {
     {
       id: 'slots' as GameType,
       title: 'Neon Vegas Slots',
-      subtitle: '5-Reel • 20 Paylines • Wild Diamonds',
-      tag: 'HOT JACKPOT',
-      tagColor: 'bg-blue-100 text-blue-700 border-blue-200',
+      subtitle: '5-Reel • 20 Paylines • Wild 7s & Diamonds',
+      tag: 'PROGRESSIVE JACKPOT',
+      tagColor: 'bg-amber-500/15 text-amber-300 border-amber-500/40',
       icon: '🎰',
-      bgGradient: 'from-blue-50/80 via-white to-white',
-      borderColor: 'hover:border-blue-500',
-      activePlayers: 482,
+      rtp: '98.8% RTP',
+      activePlayers: 512,
       maxWin: '500x',
-      description: 'Spin vibrant neon reels with wild 7s, scatter crowns, and free spins.',
+      description: 'Spin gold-encrusted reels with wild 7s, scatter crowns, and free spin multipliers.',
     },
     {
       id: 'roulette' as GameType,
       title: 'European Roulette',
-      subtitle: 'Single Zero 37 Pockets • Real Ball Physics',
-      tag: 'ROYAL VIP',
-      tagColor: 'bg-sky-100 text-sky-800 border-sky-200',
+      subtitle: 'Monte Carlo Single Zero • 37 Pockets',
+      tag: 'MONTE CARLO VIP',
+      tagColor: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/40',
       icon: '🎡',
-      bgGradient: 'from-sky-50/80 via-white to-white',
-      borderColor: 'hover:border-sky-500',
-      activePlayers: 326,
+      rtp: '97.3% RTP',
+      activePlayers: 384,
       maxWin: '36:1',
-      description: 'Place inside and outside bets on the authentic sapphire felt with smooth wheel rotation.',
+      description: 'Place inside and outside bets on authentic velvet emerald felt with physics-based ball rotation.',
     },
     {
       id: 'blackjack' as GameType,
       title: 'Blackjack 21',
-      subtitle: 'Vegas Rules • 3:2 Payout • Dealer AI',
+      subtitle: 'Vegas Strip Rules • 3:2 Payout • Dealer AI',
       tag: 'HIGH ROLLER',
-      tagColor: 'bg-indigo-100 text-indigo-800 border-indigo-200',
+      tagColor: 'bg-yellow-500/15 text-yellow-300 border-yellow-500/40',
       icon: '♠️',
-      bgGradient: 'from-indigo-50/80 via-white to-white',
-      borderColor: 'hover:border-indigo-500',
-      activePlayers: 290,
+      rtp: '99.5% RTP',
+      activePlayers: 340,
       maxWin: '3:2 Payout',
-      description: 'Test your strategy against the dealer with Hit, Stand, and Double Down on royal felt.',
+      description: 'Test your optimal strategy against the dealer with Hit, Stand, and Double Down options.',
     },
     {
       id: 'plinko' as GameType,
       title: 'Plinko Galaxy',
-      subtitle: 'Bouncing Peg Pyramid • 100x Multipliers',
-      tag: 'TRENDING',
-      tagColor: 'bg-blue-100 text-blue-800 border-blue-200',
+      subtitle: '12-Row Peg Pyramid • 100x Multipliers',
+      tag: 'TRENDING #1',
+      tagColor: 'bg-purple-500/15 text-purple-300 border-purple-500/40',
       icon: '⚡',
-      bgGradient: 'from-blue-50/80 via-white to-white',
-      borderColor: 'hover:border-blue-500',
-      activePlayers: 541,
+      rtp: '99.0% RTP',
+      activePlayers: 628,
       maxWin: '100x',
-      description: 'Drop luminous orbs down the peg pyramid and watch them ricochet into prize buckets.',
+      description: 'Drop luminous golden chips down the peg pyramid and watch them ricochet into high-multiplier buckets.',
     },
     {
       id: 'crash' as GameType,
       title: 'Crash Rocket',
       subtitle: 'Exponential Ascent • Real-time Cashout',
       tag: 'ADRENALINE',
-      tagColor: 'bg-cyan-100 text-cyan-800 border-cyan-200',
+      tagColor: 'bg-rose-500/15 text-rose-300 border-rose-500/40',
       icon: '🚀',
-      bgGradient: 'from-cyan-50/80 via-white to-white',
-      borderColor: 'hover:border-cyan-500',
-      activePlayers: 618,
-      maxWin: '250x',
-      description: 'Watch the rocket climb into deep space and cash out before it detonates!',
+      rtp: '98.5% RTP',
+      activePlayers: 742,
+      maxWin: '250x+',
+      description: 'Watch the gold-tipped rocket soar through deep space and cash out your multiplier before explosion!',
     },
     {
       id: 'mines' as GameType,
       title: 'Diamond Mines',
-      subtitle: '5x5 Diamond Grid • Configurable Mines',
+      subtitle: '5x5 Diamond Grid • Configurable Bombs',
       tag: 'STRATEGY',
-      tagColor: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+      tagColor: 'bg-cyan-500/15 text-cyan-300 border-cyan-500/40',
       icon: '💎',
-      bgGradient: 'from-emerald-50/80 via-white to-white',
-      borderColor: 'hover:border-emerald-500',
-      activePlayers: 430,
-      maxWin: '1000x+',
-      description: 'Uncover glittering sapphire diamonds on the 5x5 grid and cash out before hitting bombs.',
+      rtp: '99.2% RTP',
+      activePlayers: 495,
+      maxWin: '1,000x+',
+      description: 'Uncover sparkling emerald diamonds on the 5x5 grid and bank your accumulated profit before detonating.',
     },
   ];
 
   return (
-    <div id="casino-lobby" className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-8">
+    <div id="casino-lobby" className="max-w-7xl mx-auto px-3 sm:px-6 py-6 sm:py-8 space-y-8">
       
-      {/* Hero Marquee & Progressive Jackpot in White & Royal Blue */}
-      <section className="relative rounded-3xl overflow-hidden border border-blue-200/80 p-6 sm:p-10 bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-950 shadow-2xl text-white">
-        {/* Ambient background glows */}
-        <div className="absolute top-0 right-1/4 w-96 h-96 bg-sky-400/15 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-blue-500/15 rounded-full blur-3xl pointer-events-none" />
+      {/* Official Trust & Regulatory Certification Ribbon */}
+      <section className="bg-gradient-to-r from-[#141926] via-[#10141f] to-[#141926] border border-amber-500/30 rounded-2xl p-3.5 sm:p-4 shadow-xl flex flex-col lg:flex-row items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 sm:gap-6 text-xs text-slate-300">
+          
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-amber-500/15 border border-amber-500/40 flex items-center justify-center text-amber-400">
+              <Award className="w-4 h-4" />
+            </div>
+            <div>
+              <span className="font-black text-white text-[11px] block">Curacao eGaming</span>
+              <span className="text-[10px] text-amber-400 font-mono">License #8048/JAZ</span>
+            </div>
+          </div>
+
+          <div className="hidden sm:block h-6 w-[1px] bg-slate-800" />
+
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-emerald-500/15 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
+              <CheckCircle2 className="w-4 h-4" />
+            </div>
+            <div>
+              <span className="font-black text-white text-[11px] block">eCOGRA Certified RNG</span>
+              <span className="text-[10px] text-emerald-400 font-bold">98.8% Verified RTP</span>
+            </div>
+          </div>
+
+          <div className="hidden sm:block h-6 w-[1px] bg-slate-800" />
+
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-blue-500/15 border border-blue-500/40 flex items-center justify-center text-blue-400">
+              <Lock className="w-4 h-4" />
+            </div>
+            <div>
+              <span className="font-black text-white text-[11px] block">256-Bit SSL Cloudflare</span>
+              <span className="text-[10px] text-slate-400">Provably Fair SHA-256</span>
+            </div>
+          </div>
+
+        </div>
+
+        {/* Action Button to inspect official certificates */}
+        <button
+          onClick={() => {
+            sound.playChip();
+            if (onOpenCertificates) onOpenCertificates();
+          }}
+          className="shrink-0 flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500/20 to-yellow-500/10 hover:from-amber-500/30 hover:to-yellow-500/20 border border-amber-500/40 text-amber-300 hover:text-white text-xs font-bold transition-all active:scale-95 shadow-sm"
+        >
+          <FileCheck className="w-3.5 h-3.5 text-amber-400" />
+          <span>Verify Official Certificates & RNG</span>
+        </button>
+      </section>
+
+      {/* Hero Marquee & Progressive Jackpot in 24K Champagne Gold & Obsidian */}
+      <section className="relative rounded-3xl overflow-hidden border-2 border-amber-500/30 p-6 sm:p-10 bg-gradient-to-br from-[#161c2b] via-[#0f131d] to-[#0a0d14] shadow-[0_20px_50px_rgba(0,0,0,0.8)] text-white">
+        
+        {/* Ambient atmospheric glows */}
+        <div className="absolute top-0 right-1/4 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-yellow-600/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-8">
           
-          {/* Left Text */}
+          {/* Left Column: Welcome & CTAs */}
           <div className="text-center lg:text-left max-w-xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-sky-300 text-xs font-bold uppercase tracking-wider mb-4">
-              <Sparkles className="w-3.5 h-3.5 text-sky-400" />
-              <span>Welcome to Grand Royale VIP Suite</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/40 text-amber-300 text-xs font-bold uppercase tracking-wider mb-4 shadow-inner">
+              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+              <span>International High-Roller VIP Lounge</span>
             </div>
 
             <h1 className="text-3xl sm:text-5xl font-black font-serif-luxury text-white tracking-wide leading-tight mb-3">
-              The Premier <br className="hidden sm:inline" />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-white to-sky-100">
-                White & Royal Blue Casino
+              The #1 Rated Virtual{' '}
+              <span className="gold-gradient-text block sm:inline">
+                Luxury Casino
               </span>
             </h1>
 
-            <p className="text-blue-100/90 text-sm sm:text-base mb-6 leading-relaxed">
-              Step into our luxury lounge with 6 premier casino games: Neon Slots, European Roulette, 
-              Blackjack 21, Plinko, Crash Rocket, and Diamond Mines with 100% free virtual chips!
+            <p className="text-slate-300 text-sm sm:text-base mb-6 leading-relaxed">
+              Experience the pinnacle of virtual gaming. Enjoy 6 certified games—Neon Slots, 
+              European Roulette, Blackjack 21, Plinko, Crash Rocket, and Diamond Mines—with 
+              complimentary virtual chips and realistic sound.
             </p>
 
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3">
               <button
-                id="lobby-play-slots-btn"
+                id="hero-play-btn"
                 onClick={() => {
                   sound.playChip();
                   onSelectGame('slots');
                 }}
-                className="px-6 py-3 rounded-xl font-black text-sm tracking-wider uppercase bg-white text-blue-900 hover:bg-blue-50 shadow-lg shadow-black/20 flex items-center gap-2 transition-all active:scale-95"
+                className="px-6 py-3.5 rounded-xl font-black text-xs sm:text-sm tracking-wider uppercase bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-950 hover:brightness-110 shadow-lg shadow-amber-500/25 flex items-center gap-2 transition-all active:scale-95"
               >
                 <span>Play Neon Slots</span>
-                <ArrowRight className="w-4 h-4 text-blue-600" />
+                <ArrowRight className="w-4 h-4 text-slate-950" />
               </button>
 
               <button
-                id="lobby-bonus-btn"
                 onClick={() => {
                   sound.playChip();
                   setShowBonusWheel(true);
                 }}
-                className="px-5 py-3 rounded-xl font-bold text-sm bg-blue-700/80 hover:bg-blue-600 text-white border border-blue-400/40 flex items-center gap-2 transition-all active:scale-95"
+                className="px-5 py-3.5 rounded-xl font-bold text-xs sm:text-sm bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-2 transition-all active:scale-95"
               >
-                <Coins className="w-4 h-4 text-sky-300" />
-                <span>Claim Free Bonus</span>
+                <Coins className="w-4 h-4 text-amber-400" />
+                <span>Spin Bonus Wheel</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  sound.playChip();
+                  if (onOpenCertificates) onOpenCertificates();
+                }}
+                className="px-4 py-3.5 rounded-xl font-bold text-xs text-amber-300 hover:text-amber-200 bg-amber-950/30 hover:bg-amber-900/40 border border-amber-500/30 flex items-center gap-1.5 transition-all"
+              >
+                <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                <span>Provably Fair</span>
               </button>
             </div>
           </div>
 
-          {/* Right: Royal Blue Progressive Jackpot Box */}
-          <div className="w-full lg:w-auto shrink-0 bg-white/10 backdrop-blur-xl border-2 border-sky-300/40 rounded-2xl p-6 shadow-2xl text-center relative">
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-sky-400 text-slate-950 font-black text-[10px] tracking-widest uppercase px-3 py-0.5 rounded-full shadow">
+          {/* Right Column: Progressive Grand Jackpot Box */}
+          <div className="w-full lg:w-auto shrink-0 bg-[#121622]/90 backdrop-blur-xl border-2 border-amber-500/40 rounded-3xl p-6 sm:p-7 shadow-2xl text-center relative max-w-sm">
+            <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-black text-[10px] tracking-widest uppercase px-4 py-1 rounded-full shadow-md">
               Progressive Grand Jackpot
             </div>
             
-            <div className="mt-2 mb-2 flex items-center justify-center gap-2">
-              <Crown className="w-6 h-6 text-yellow-300 animate-bounce" />
-              <span className="text-2xl sm:text-4xl font-black font-serif-luxury text-white tracking-wider">
+            <div className="my-3 flex items-center justify-center gap-2">
+              <Crown className="w-6 h-6 text-amber-400 animate-bounce" />
+              <span className="text-2xl sm:text-4xl font-black font-serif-luxury text-amber-300 tracking-wider drop-shadow-[0_2px_12px_rgba(245,197,66,0.3)]">
                 ${jackpot.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
             </div>
-
-            <p className="text-[11px] text-sky-200 uppercase tracking-widest font-semibold mb-4">
-              Play Any Of The 6 Games To Win
+            
+            <p className="text-[11px] text-amber-400/80 uppercase tracking-widest font-bold mb-4">
+              Triggerable Across All 6 VIP Games
             </p>
 
-            <div className="grid grid-cols-2 gap-2 text-left bg-black/25 p-3 rounded-xl border border-white/10 text-xs">
+            <div className="grid grid-cols-2 gap-2.5 text-left bg-slate-950/70 p-3 rounded-2xl border border-slate-800 text-xs">
               <div>
-                <span className="text-[10px] text-blue-200 uppercase block">Your Balance</span>
-                <span className="font-bold text-white">${balance.toLocaleString()}</span>
+                <span className="text-[10px] text-slate-400 uppercase block font-semibold">Your Balance</span>
+                <span className="font-black text-amber-400 font-serif-luxury text-sm">${balance.toLocaleString()}</span>
               </div>
               <div>
-                <span className="text-[10px] text-blue-200 uppercase block">VIP Tier</span>
-                <span className="font-bold text-sky-300">Sapphire Elite</span>
+                <span className="text-[10px] text-slate-400 uppercase block font-semibold">VIP Status</span>
+                <span className="font-black text-emerald-400 flex items-center gap-1 text-sm">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                  Diamond VIP
+                </span>
               </div>
             </div>
           </div>
@@ -200,117 +266,127 @@ export const Lobby: React.FC<LobbyProps> = ({ onSelectGame }) => {
         </div>
       </section>
 
-      {/* Live Winners Ticker */}
-      <section className="bg-white border border-blue-100 rounded-2xl p-3 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs overflow-hidden shadow-sm">
-        <div className="flex items-center gap-2 shrink-0 text-blue-700 font-bold uppercase tracking-wider text-[11px]">
+      {/* Live VIP Winners Ticker */}
+      <section className="bg-[#0f131d] border border-amber-500/20 rounded-2xl p-3 sm:p-3.5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs overflow-hidden shadow-lg">
+        <div className="flex items-center gap-2 shrink-0 text-amber-400 font-bold uppercase tracking-wider text-[11px]">
           <span className="relative flex h-2.5 w-2.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-600"></span>
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
           </span>
-          <Flame className="w-4 h-4 text-blue-600" />
-          <span>Live VIP Wins</span>
+          <Flame className="w-4 h-4 text-amber-400" />
+          <span>Live High-Roller Wins</span>
         </div>
 
-        <div className="flex items-center gap-4 overflow-x-auto no-scrollbar w-full sm:w-auto py-1">
+        {/* Scrolling list */}
+        <div className="flex items-center gap-3 overflow-x-auto no-scrollbar w-full py-1">
           {liveWins.map((win) => (
             <div
               key={win.id}
-              className="flex items-center gap-2 bg-blue-50/60 px-3 py-1.5 rounded-xl border border-blue-100 shrink-0 text-[11px]"
+              className="flex items-center gap-2 bg-[#141824] px-3 py-1.5 rounded-xl border border-slate-800/80 shrink-0 text-[11px]"
             >
-              <span className="text-slate-800 font-bold">{win.player}</span>
+              <span className="text-slate-200 font-bold">{win.player}</span>
               <span className="text-slate-500">won</span>
-              <span className="text-blue-700 font-bold font-serif-luxury">+${win.amount.toLocaleString()}</span>
-              <span className="text-[9px] px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 border border-blue-200 font-bold">
+              <span className="text-emerald-400 font-black font-serif-luxury">+${win.amount.toLocaleString()}</span>
+              <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30 font-bold">
                 {win.multiplier}
               </span>
-              <span className="text-slate-500">on {win.game}</span>
+              <span className="text-slate-400">on {win.game}</span>
             </div>
           ))}
         </div>
       </section>
 
-      {/* 6 Games Catalog Grid */}
+      {/* 6 Luxury Games Catalog Grid */}
       <section className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-xl sm:text-2xl font-bold font-serif-luxury text-slate-900">
-              Featured 6 Casino Suites
-            </h2>
-            <p className="text-xs text-slate-500">Choose your game table and place your bets</p>
+            <div className="flex items-center gap-2">
+              <h2 className="text-xl sm:text-2xl font-black font-serif-luxury text-white">
+                Official Casino Suites
+              </h2>
+              <span className="px-2 py-0.5 rounded text-[10px] font-black bg-amber-500/15 text-amber-300 border border-amber-500/30">
+                6 Verified Tables
+              </span>
+            </div>
+            <p className="text-xs text-slate-400">Select any suite to place your virtual bets with certified fair RNG</p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
           {games.map((g) => (
             <div
               key={g.id}
-              id={`game-card-${g.id}`}
               onClick={() => {
                 sound.playChip();
                 onSelectGame(g.id);
               }}
-              className={`group relative rounded-3xl bg-white border-2 border-slate-100 ${g.borderColor} p-6 cursor-pointer transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-blue-500/10 flex flex-col justify-between`}
+              className="group relative rounded-3xl bg-gradient-to-b from-[#141926] to-[#0c1018] border border-amber-500/20 hover:border-amber-500/60 p-6 cursor-pointer transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-amber-500/15 flex flex-col justify-between"
             >
               <div>
-                {/* Header tag */}
+                {/* Header Tag & Active Players */}
                 <div className="flex items-center justify-between gap-2 mb-4">
-                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black tracking-wider border ${g.tagColor}`}>
+                  <span className={`px-2.5 py-1 rounded-full text-[10px] font-black tracking-wider border ${g.tagColor}`}>
                     {g.tag}
                   </span>
-                  <div className="flex items-center gap-1 text-[11px] text-slate-500 font-medium">
-                    <Users className="w-3 h-3 text-slate-400" />
-                    <span>{g.activePlayers} playing</span>
+                  <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    <span>{g.activePlayers} VIPs</span>
                   </div>
                 </div>
 
                 {/* Big Game Icon */}
-                <div className="text-5xl mb-4 transform group-hover:scale-110 transition-transform duration-300">
-                  {g.icon}
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-amber-500/15 to-yellow-500/5 border border-amber-500/30 flex items-center justify-center text-3xl mb-4 group-hover:scale-105 transition-transform">
+                  <span>{g.icon}</span>
                 </div>
 
                 {/* Title & Subtitle */}
-                <h3 className="text-xl font-black text-slate-900 group-hover:text-blue-700 transition-colors">
+                <h3 className="text-xl font-black text-white group-hover:text-amber-300 transition-colors font-serif-luxury">
                   {g.title}
                 </h3>
-                <p className="text-xs text-blue-600 mb-2 font-bold">
+                <p className="text-xs text-amber-400/90 mb-2 font-bold">
                   {g.subtitle}
                 </p>
-                <p className="text-xs text-slate-600 line-clamp-2 mb-4 leading-relaxed">
+                <p className="text-xs text-slate-400 line-clamp-2 mb-4 leading-relaxed">
                   {g.description}
                 </p>
               </div>
 
-              {/* Bottom Card Footer */}
-              <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+              {/* Bottom Card Footer with RTP & Max Multiplier */}
+              <div className="pt-4 border-t border-slate-800/80 flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] text-slate-400 uppercase block font-bold">Max Payout</span>
-                  <span className="text-sm font-black text-blue-700 font-serif-luxury">{g.maxWin}</span>
+                  <span className="text-[10px] text-slate-400 uppercase block font-semibold">Max Win • {g.rtp}</span>
+                  <span className="text-sm font-black text-amber-300 font-serif-luxury">{g.maxWin}</span>
                 </div>
 
-                <div className="w-9 h-9 rounded-xl bg-blue-50 group-hover:bg-blue-600 text-blue-700 group-hover:text-white flex items-center justify-center transition-all shadow-sm">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/15 group-hover:bg-amber-500 text-amber-400 group-hover:text-slate-950 border border-amber-500/30 flex items-center justify-center transition-all shadow-md">
                   <ArrowRight className="w-4 h-4 transform group-hover:translate-x-0.5 transition-transform" />
                 </div>
               </div>
-
             </div>
           ))}
         </div>
       </section>
 
-      {/* Safety & Responsible Play Notice */}
-      <footer className="rounded-2xl bg-white border border-blue-100 p-5 text-center sm:text-left flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 shadow-sm">
+      {/* Safety, Regulatory & Responsible Play Notice */}
+      <footer className="rounded-2xl bg-[#0f131d] border border-amber-500/20 p-5 text-center sm:text-left flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400 shadow-xl">
         <div className="flex items-center gap-3">
-          <ShieldCheck className="w-6 h-6 text-blue-600 shrink-0" />
+          <ShieldCheck className="w-7 h-7 text-emerald-400 shrink-0" />
           <div>
-            <span className="text-slate-800 font-bold block">100% Free Virtual Play Money</span>
-            <span>All games use virtual simulation chips. No real money gambling or purchases required. Enjoy pure entertainment.</span>
+            <span className="text-white font-bold block text-sm">Official Certified Virtual Casino Simulation</span>
+            <span>All games operate using certified random seeds and virtual simulation chips. No real money gambling. Entertainment purposes only.</span>
           </div>
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <span className="px-3 py-1 rounded-lg bg-blue-50 border border-blue-200 text-[11px] font-bold text-blue-700">
-            RNG Certified 98.4% RTP
-          </span>
+          <button
+            onClick={() => {
+              sound.playChip();
+              if (onOpenCertificates) onOpenCertificates();
+            }}
+            className="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-amber-500/30 text-[11px] font-bold text-amber-300 transition-colors"
+          >
+            Licensing Details & Certificates
+          </button>
         </div>
       </footer>
 

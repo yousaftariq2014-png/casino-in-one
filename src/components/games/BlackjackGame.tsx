@@ -317,17 +317,17 @@ export const BlackjackGame: React.FC<BlackjackGameProps> = ({ onBackToLobby }) =
         </button>
 
         <div className="flex items-center gap-2">
-          <span className="px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-bold">
-            Blackjack Pays 3:2 • Dealer stands on 17
+          <span className="px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/40 text-amber-300 text-xs font-bold">
+            Blackjack Pays 3:2 • Dealer stands on 17 • Certified Fair
           </span>
         </div>
       </div>
 
-      {/* Royal Blackjack Felt Table */}
-      <div className="rounded-3xl border-2 border-blue-600/40 p-5 sm:p-8 shadow-2xl felt-green min-h-[480px] flex flex-col justify-between relative overflow-hidden">
+      {/* Royal Blackjack Emerald Felt Table */}
+      <div className="rounded-3xl border-2 border-amber-500/40 p-5 sm:p-8 shadow-2xl felt-emerald min-h-[480px] flex flex-col justify-between relative overflow-hidden">
         
         {/* Subtle Felt Arch Overlay */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 border-b-2 border-amber-400/20 rounded-b-[100%] pointer-events-none" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 border-b-2 border-amber-400/30 rounded-b-[100%] pointer-events-none" />
 
         {/* Dealer Section */}
         <div className="flex flex-col items-center gap-2 relative z-10">

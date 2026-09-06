@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { useCasino } from '../context/CasinoContext';
 import { sound } from '../utils/audio';
 import confetti from 'canvas-confetti';
-import { X, Sparkles, Gift, RotateCw } from 'lucide-react';
+import { X, Sparkles, Gift, RotateCw, Crown } from 'lucide-react';
 
 const PRIZES = [
   { amount: 500, label: '$500', color: '#1e293b', textColor: '#f8fafc' },
-  { amount: 1000, label: '$1,000', color: '#047857', textColor: '#ffffff' },
-  { amount: 2500, label: '$2,500', color: '#1d4ed8', textColor: '#ffffff' },
+  { amount: 1000, label: '$1,000', color: '#065f46', textColor: '#ffffff' },
+  { amount: 2500, label: '$2,500', color: '#1e3a8a', textColor: '#ffffff' },
   { amount: 5000, label: '$5,000', color: '#7e22ce', textColor: '#ffffff' },
   { amount: 1500, label: '$1,500', color: '#b45309', textColor: '#ffffff' },
   { amount: 10000, label: '$10,000', color: '#be123c', textColor: '#ffffff' },
@@ -31,9 +31,7 @@ export const DailyBonusModal: React.FC = () => {
     // Random target index
     const targetIdx = Math.floor(Math.random() * PRIZES.length);
     const sliceAngle = 360 / PRIZES.length;
-    // Calculate angle: 5 full rotations (1800 deg) plus offset to target index
     const extraSpins = 5 * 360;
-    // Note: arrow points at 270 deg (top) or 0 deg (top). Let's calculate offset so arrow at top aligns
     const targetSliceAngle = targetIdx * sliceAngle;
     const finalAngle = rotation + extraSpins + (360 - (targetSliceAngle % 360)) + sliceAngle / 2;
 
@@ -56,9 +54,10 @@ export const DailyBonusModal: React.FC = () => {
 
       sound.playBigWin();
       confetti({
-        particleCount: 100,
-        spread: 70,
+        particleCount: 120,
+        spread: 80,
         origin: { y: 0.6 },
+        colors: ['#d4af37', '#f59e0b', '#ffffff', '#10b981'],
       });
     }, 3800);
   };
@@ -70,41 +69,41 @@ export const DailyBonusModal: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="relative w-full max-w-md bg-white border-2 border-blue-200 rounded-3xl p-6 shadow-2xl overflow-hidden text-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
+      <div className="relative w-full max-w-md bg-[#0f141d] border-2 border-amber-500/40 rounded-3xl p-6 shadow-[0_0_40px_rgba(212,175,55,0.2)] overflow-hidden text-center">
         
         {/* Glow effect */}
-        <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-64 h-64 bg-amber-500/15 rounded-full blur-3xl pointer-events-none" />
 
         {/* Close button */}
         <button
           onClick={() => setShowBonusWheel(false)}
           disabled={spinning}
-          className="absolute top-4 right-4 p-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 transition-colors"
+          className="absolute top-4 right-4 p-2 rounded-full bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"
         >
           <X className="w-5 h-5" />
         </button>
 
         {/* Header */}
         <div className="flex items-center justify-center gap-2 mb-1">
-          <Sparkles className="w-5 h-5 text-blue-600" />
-          <h2 className="text-xl font-black font-serif-luxury blue-gradient-text tracking-wide uppercase">
-            Lucky Bonus Wheel
+          <Crown className="w-5 h-5 text-amber-400" />
+          <h2 className="text-xl font-black font-serif-luxury gold-gradient-text tracking-wide uppercase">
+            VIP Lucky Wheel
           </h2>
-          <Sparkles className="w-5 h-5 text-blue-600" />
+          <Crown className="w-5 h-5 text-amber-400" />
         </div>
-        <p className="text-xs text-slate-500 mb-6 font-medium">
-          Spin to win up to $25,000 in free virtual play chips!
+        <p className="text-xs text-slate-400 mb-6 font-medium">
+          Spin to claim up to $25,000 in complimentary virtual chips!
         </p>
 
         {/* The Wheel */}
         <div className="relative w-64 h-64 mx-auto mb-6 flex items-center justify-center">
           
           {/* Top Indicator Arrow */}
-          <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20 w-0 h-0 border-l-[14px] border-l-transparent border-r-[14px] border-r-transparent border-t-[22px] border-t-blue-600 drop-shadow-[0_2px_8px_rgba(37,99,235,0.6)]" />
+          <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20 w-0 h-0 border-l-[14px] border-l-transparent border-r-[14px] border-r-transparent border-t-[22px] border-t-amber-400 drop-shadow-[0_2px_8px_rgba(245,197,66,0.6)]" />
 
-          {/* Outer Ring with blue border */}
-          <div className="w-full h-full rounded-full border-4 border-blue-500 p-1 bg-blue-50 shadow-[0_0_25px_rgba(37,99,235,0.25)]">
+          {/* Outer Ring with gold border */}
+          <div className="w-full h-full rounded-full border-4 border-amber-400/80 p-1 bg-amber-950/40 shadow-[0_0_25px_rgba(245,197,66,0.3)]">
             
             {/* Spinning disc */}
             <div
@@ -131,7 +130,7 @@ export const DailyBonusModal: React.FC = () => {
 
                   return (
                     <g key={idx}>
-                      <path d={pathData} fill={prize.color} stroke="#ffffff" strokeWidth="0.8" />
+                      <path d={pathData} fill={prize.color} stroke="#0f141d" strokeWidth="0.8" />
                       <text
                         x="50"
                         y="18"
@@ -151,16 +150,16 @@ export const DailyBonusModal: React.FC = () => {
           </div>
 
           {/* Center Hub */}
-          <div className="absolute z-10 w-14 h-14 rounded-full bg-gradient-to-tr from-blue-700 via-blue-500 to-sky-400 border-2 border-white flex items-center justify-center shadow-lg pointer-events-none">
-            <Gift className="w-6 h-6 text-white" />
+          <div className="absolute z-10 w-14 h-14 rounded-full bg-gradient-to-tr from-amber-600 via-amber-300 to-amber-500 border-2 border-amber-200 flex items-center justify-center shadow-lg pointer-events-none">
+            <Gift className="w-6 h-6 text-slate-950" />
           </div>
         </div>
 
         {/* Won Prize Announcement */}
         {wonPrize !== null && (
-          <div className="mb-4 p-3 rounded-2xl bg-blue-50 border border-blue-200 animate-in zoom-in-95">
-            <span className="text-xs text-blue-700 uppercase font-bold block">Congratulations!</span>
-            <span className="text-2xl font-black text-blue-900 font-serif-luxury">
+          <div className="mb-4 p-3 rounded-2xl bg-amber-500/20 border border-amber-500/40 animate-in zoom-in-95">
+            <span className="text-xs text-amber-300 uppercase font-bold block">Congratulations!</span>
+            <span className="text-2xl font-black text-white font-serif-luxury">
               +${wonPrize.toLocaleString()} Free Chips
             </span>
           </div>
@@ -172,7 +171,7 @@ export const DailyBonusModal: React.FC = () => {
             id="spin-bonus-wheel-btn"
             disabled={spinning}
             onClick={handleSpin}
-            className="w-full py-3.5 rounded-xl font-black text-sm tracking-wider uppercase bg-gradient-to-r from-blue-600 via-blue-500 to-sky-500 text-white hover:brightness-105 shadow-lg shadow-blue-500/25 transition-all active:scale-98 disabled:opacity-50 flex items-center justify-center gap-2"
+            className="w-full py-3.5 rounded-xl font-black text-sm tracking-wider uppercase bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-950 hover:brightness-110 shadow-lg shadow-amber-500/30 transition-all active:scale-98 disabled:opacity-50 flex items-center justify-center gap-2"
           >
             <RotateCw className={`w-4 h-4 ${spinning ? 'animate-spin' : ''}`} />
             <span>{spinning ? 'Spinning...' : 'Spin the Wheel'}</span>
@@ -181,7 +180,7 @@ export const DailyBonusModal: React.FC = () => {
           <button
             onClick={handleInstantRefill}
             disabled={spinning}
-            className="w-full py-2.5 rounded-xl font-bold text-xs text-blue-700 hover:text-blue-900 hover:bg-blue-50 transition-colors"
+            className="w-full py-2.5 rounded-xl font-bold text-xs text-slate-400 hover:text-white hover:bg-slate-800/80 transition-colors"
           >
             Or get instant +$2,500 Refill
           </button>

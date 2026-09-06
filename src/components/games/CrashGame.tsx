@@ -10,7 +10,7 @@ import {
   RotateCcw,
   Zap,
   TrendingUp,
-  ShieldAlert,
+  ShieldCheck,
   Sparkles,
   Trophy,
   History,
@@ -41,12 +41,10 @@ export const CrashGame: React.FC<CrashGameProps> = ({ onBackToLobby }) => {
   const hasCashedOutRef = useRef<boolean>(false);
   const currentBetRef = useRef<number>(50);
 
-  // Keep refs in sync
   useEffect(() => {
     currentBetRef.current = currentBet;
   }, [currentBet]);
 
-  // Clean up animations on unmount
   useEffect(() => {
     return () => {
       if (animationFrameRef.current) {
@@ -55,18 +53,13 @@ export const CrashGame: React.FC<CrashGameProps> = ({ onBackToLobby }) => {
     };
   }, []);
 
-  // Calculate random crash point with house edge (~97% RTP)
   const generateCrashPoint = (): number => {
-    // 4% instant crash chance at 1.00x
-    if (Math.random() < 0.04) {
-      return 1.0;
-    }
-    // Exponential distribution
+    const isInstantCrash = Math.random() < 0.035;
+    if (isInstantCrash) return 1.0;
     const e = 2 ** 32;
     const h = Math.floor(Math.random() * e);
-    const r = Math.floor((100 * e - h) / (e - h));
-    const result = Math.max(1.01, parseFloat((r / 100).toFixed(2)));
-    return Math.min(result, 250.0);
+    const point = Math.floor((100 * e - h) / (e - h)) / 100;
+    return Math.max(1.01, Math.min(point, 150));
   };
 
   const handleStartFlight = () => {
@@ -77,87 +70,69 @@ export const CrashGame: React.FC<CrashGameProps> = ({ onBackToLobby }) => {
       return;
     }
 
-    const deducted = modifyBalance(-currentBet, 'crash', currentBet);
-    if (!deducted) return;
-
+    modifyBalance(-currentBet, 'crash', currentBet);
     sound.playChip();
 
     const targetCrash = generateCrashPoint();
     setCrashPoint(targetCrash);
     crashPointRef.current = targetCrash;
     hasCashedOutRef.current = false;
-    setMultiplier(1.0);
+    setCashoutMultiplier(1.0);
     setGameState('flying');
+    setMultiplier(1.0);
+
     startTimeRef.current = performance.now();
 
-    const durationFactor = 0.0007; // Speed curve
-
-    const loop = (now: number) => {
+    const animateFlight = (now: number) => {
       const elapsedSec = (now - startTimeRef.current) / 1000;
-      // Multiplier grows exponentially over time: 1.00 * e^(0.075 * t^1.15)
-      const currentMult = parseFloat(Math.max(1.0, Math.exp(0.08 * Math.pow(elapsedSec, 1.25))).toFixed(2));
-
-      // Play sound tick
-      if (Math.random() < 0.25) {
-        sound.playRocketAscend(currentMult);
-      }
-
-      // Check for auto-cashout
-      if (
-        autoCashoutEnabled &&
-        !hasCashedOutRef.current &&
-        currentMult >= autoCashout &&
-        currentMult < crashPointRef.current
-      ) {
-        handleCashout(currentMult);
-      }
+      const currentMult = Math.pow(Math.E, 0.065 * elapsedSec);
 
       if (currentMult >= crashPointRef.current) {
-        // Rocket Crashed!
         setMultiplier(crashPointRef.current);
-        setGameState(hasCashedOutRef.current ? 'cashed-out' : 'crashed');
-        sound.playRocketCrash();
-
-        // Add to history
-        setHistory((prev) => [crashPointRef.current, ...prev.slice(0, 9)]);
-
-        // Draw explosion
+        setGameState('crashed');
+        sound.playLose();
         drawCanvas(crashPointRef.current, true);
+        setHistory((prev) => [crashPointRef.current, ...prev.slice(0, 10)]);
         return;
       }
 
       setMultiplier(currentMult);
-      drawCanvas(currentMult, false);
 
-      animationFrameRef.current = requestAnimationFrame(loop);
+      if (autoCashoutEnabled && !hasCashedOutRef.current && currentMult >= autoCashout) {
+        handleCashout(currentMult);
+      }
+
+      drawCanvas(currentMult, false);
+      animationFrameRef.current = requestAnimationFrame(animateFlight);
     };
 
-    animationFrameRef.current = requestAnimationFrame(loop);
+    animationFrameRef.current = requestAnimationFrame(animateFlight);
   };
 
-  const handleCashout = (atMultiplier?: number) => {
+  const handleCashout = (forcedMult?: number) => {
     if (gameState !== 'flying' || hasCashedOutRef.current) return;
 
-    const mult = atMultiplier ?? multiplier;
     hasCashedOutRef.current = true;
-    setCashoutMultiplier(mult);
+    const finalMultiplier = forcedMult || multiplier;
+    setCashoutMultiplier(finalMultiplier);
+    setGameState('cashed-out');
 
-    const winnings = Math.floor(currentBetRef.current * mult);
-    modifyBalance(winnings, 'crash');
+    const winAmount = Math.floor(currentBetRef.current * finalMultiplier);
+    modifyBalance(winAmount, 'crash');
 
-    sound.playCashout();
-
-    if (mult >= 5.0) {
+    if (finalMultiplier >= 5) {
+      sound.playBigWin();
       confetti({
-        particleCount: 50,
-        spread: 60,
+        particleCount: 100,
+        spread: 70,
         origin: { y: 0.6 },
-        colors: ['#2563eb', '#60a5fa', '#93c5fd', '#ffffff'],
+        colors: ['#d4af37', '#f59e0b', '#ffffff'],
       });
+    } else {
+      sound.playWin();
     }
   };
 
-  // Canvas drawing function for the flight path and animated stars
   const drawCanvas = (currentMult: number, isCrashed: boolean) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -167,91 +142,80 @@ export const CrashGame: React.FC<CrashGameProps> = ({ onBackToLobby }) => {
     const width = canvas.width;
     const height = canvas.height;
 
-    ctx.clearRect(0, 0, width, height);
-
-    // Deep Royal Navy / Sapphire gradient sky
-    const skyGrad = ctx.createLinearGradient(0, 0, 0, height);
-    skyGrad.addColorStop(0, '#09152e');
-    skyGrad.addColorStop(1, '#0f274d');
-    ctx.fillStyle = skyGrad;
+    // Deep luxury space background
+    const bgGrad = ctx.createLinearGradient(0, 0, 0, height);
+    bgGrad.addColorStop(0, '#0a0d14');
+    bgGrad.addColorStop(1, '#0e121d');
+    ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, width, height);
 
-    // Subtle Grid lines
-    ctx.strokeStyle = 'rgba(59, 130, 246, 0.15)';
+    // Grid lines
+    ctx.strokeStyle = 'rgba(212, 175, 55, 0.08)';
     ctx.lineWidth = 1;
-    for (let x = 40; x < width; x += 60) {
+    for (let x = 50; x < width; x += 80) {
       ctx.beginPath();
       ctx.moveTo(x, 0);
       ctx.lineTo(x, height);
       ctx.stroke();
     }
-    for (let y = height - 30; y > 0; y -= 50) {
+    for (let y = 50; y < height; y += 60) {
       ctx.beginPath();
       ctx.moveTo(0, y);
       ctx.lineTo(width, y);
       ctx.stroke();
     }
 
-    // Rocket Flight coordinates
-    // Logarithmic map to fit canvas nicely
-    const progress = Math.min(1, Math.log2(currentMult) / 6);
-    const startX = 50;
-    const startY = height - 40;
-    const targetX = startX + progress * (width - 120);
-    const targetY = startY - progress * (height - 90);
+    const padding = 40;
+    const flightWidth = width - padding * 2;
+    const flightHeight = height - padding * 2;
 
-    // Curve control point
-    const cpX = startX + (targetX - startX) * 0.4;
-    const cpY = startY;
+    const progress = Math.min((currentMult - 1) / 10, 1);
+    const endX = padding + flightWidth * Math.min(progress * 1.2, 0.95);
+    const endY = height - padding - flightHeight * Math.min(progress, 0.9);
 
-    // Glowing Curve
-    ctx.shadowBlur = 12;
-    ctx.shadowColor = isCrashed ? '#ef4444' : '#38bdf8';
-    ctx.strokeStyle = isCrashed ? '#f87171' : '#38bdf8';
-    ctx.lineWidth = 4;
-    ctx.beginPath();
-    ctx.moveTo(startX, startY);
-    ctx.quadraticCurveTo(cpX, cpY, targetX, targetY);
-    ctx.stroke();
-    ctx.shadowBlur = 0;
-
-    // Gradient fill under the curve
-    const areaGrad = ctx.createLinearGradient(0, targetY, 0, startY);
+    // Gradient trail under rocket
+    const trailGrad = ctx.createLinearGradient(padding, height - padding, endX, endY);
     if (isCrashed) {
-      areaGrad.addColorStop(0, 'rgba(239, 68, 68, 0.3)');
-      areaGrad.addColorStop(1, 'rgba(239, 68, 68, 0.0)');
+      trailGrad.addColorStop(0, 'rgba(225, 29, 72, 0.02)');
+      trailGrad.addColorStop(1, 'rgba(225, 29, 72, 0.35)');
     } else {
-      areaGrad.addColorStop(0, 'rgba(56, 189, 248, 0.35)');
-      areaGrad.addColorStop(1, 'rgba(37, 99, 235, 0.0)');
+      trailGrad.addColorStop(0, 'rgba(212, 175, 55, 0.02)');
+      trailGrad.addColorStop(1, 'rgba(245, 158, 11, 0.35)');
     }
-    ctx.fillStyle = areaGrad;
+
+    ctx.fillStyle = trailGrad;
     ctx.beginPath();
-    ctx.moveTo(startX, startY);
-    ctx.quadraticCurveTo(cpX, cpY, targetX, targetY);
-    ctx.lineTo(targetX, startY);
+    ctx.moveTo(padding, height - padding);
+    ctx.quadraticCurveTo((padding + endX) / 2, height - padding, endX, endY);
+    ctx.lineTo(endX, height - padding);
     ctx.closePath();
     ctx.fill();
 
+    // The flight curve
+    ctx.strokeStyle = isCrashed ? '#f43f5e' : '#d4af37';
+    ctx.lineWidth = 4;
+    ctx.shadowColor = isCrashed ? 'rgba(244, 63, 94, 0.8)' : 'rgba(212, 175, 55, 0.8)';
+    ctx.shadowBlur = 12;
+    ctx.beginPath();
+    ctx.moveTo(padding, height - padding);
+    ctx.quadraticCurveTo((padding + endX) / 2, height - padding, endX, endY);
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // Draw Rocket or Explosion
     if (isCrashed) {
-      // Explosion burst
-      ctx.fillStyle = '#ef4444';
+      ctx.fillStyle = '#f43f5e';
       ctx.beginPath();
-      ctx.arc(targetX, targetY, 18, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = '#fef08a';
-      ctx.beginPath();
-      ctx.arc(targetX, targetY, 9, 0, Math.PI * 2);
+      ctx.arc(endX, endY, 12, 0, Math.PI * 2);
       ctx.fill();
     } else {
-      // Draw Rocket at (targetX, targetY)
       ctx.save();
-      ctx.translate(targetX, targetY);
-      // Angle tangent
+      ctx.translate(endX, endY);
       const angle = -Math.PI / 4;
       ctx.rotate(angle);
 
-      // Flame behind rocket
-      ctx.fillStyle = '#f97316';
+      // Golden Flame
+      ctx.fillStyle = '#f59e0b';
       ctx.beginPath();
       ctx.moveTo(-18, -4);
       ctx.lineTo(-30 - Math.random() * 8, 0);
@@ -266,7 +230,7 @@ export const CrashGame: React.FC<CrashGameProps> = ({ onBackToLobby }) => {
       ctx.fill();
 
       // Rocket nosecone
-      ctx.fillStyle = '#2563eb';
+      ctx.fillStyle = '#d4af37';
       ctx.beginPath();
       ctx.moveTo(10, -5);
       ctx.lineTo(20, 0);
@@ -275,7 +239,7 @@ export const CrashGame: React.FC<CrashGameProps> = ({ onBackToLobby }) => {
       ctx.fill();
 
       // Rocket fins
-      ctx.fillStyle = '#1d4ed8';
+      ctx.fillStyle = '#b45309';
       ctx.beginPath();
       ctx.moveTo(-10, -5);
       ctx.lineTo(-16, -11);
@@ -294,7 +258,6 @@ export const CrashGame: React.FC<CrashGameProps> = ({ onBackToLobby }) => {
     }
   };
 
-  // Initial draw
   useEffect(() => {
     drawCanvas(1.0, false);
   }, []);
@@ -310,27 +273,27 @@ export const CrashGame: React.FC<CrashGameProps> = ({ onBackToLobby }) => {
             sound.playChip();
             onBackToLobby();
           }}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-blue-900 bg-white border border-blue-200 hover:bg-blue-50 transition-all shadow-sm active:scale-95"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-slate-300 bg-slate-900 border border-slate-800 hover:bg-slate-800 hover:text-white transition-all shadow-sm active:scale-95"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Back to Casino Lobby</span>
+          <span>Back to Lobby</span>
         </button>
 
         <div className="flex items-center gap-2">
-          <span className="text-xs font-bold uppercase tracking-wider text-blue-800 bg-blue-100 px-3 py-1 rounded-full border border-blue-200">
+          <span className="text-xs font-bold uppercase tracking-wider text-amber-300 bg-amber-500/15 px-3 py-1 rounded-full border border-amber-500/30">
             Multiplier Rocket
           </span>
-          <span className="text-xs font-bold text-slate-600 bg-white px-3 py-1 rounded-full border border-slate-200 shadow-sm">
-            RTP 97.5%
+          <span className="text-xs font-bold text-slate-400 bg-slate-900 px-3 py-1 rounded-full border border-slate-800">
+            RTP 98.5% • Provably Fair
           </span>
         </div>
       </div>
 
       {/* Recent Crash Multipliers Bar */}
-      <div className="flex items-center gap-2 overflow-x-auto p-3 bg-white rounded-2xl border border-blue-100 shadow-sm no-scrollbar">
-        <div className="flex items-center gap-1.5 text-xs font-bold text-slate-500 shrink-0 mr-1">
-          <History className="w-3.5 h-3.5 text-blue-600" />
-          <span>Recent:</span>
+      <div className="flex items-center gap-2 overflow-x-auto p-3 bg-[#0f141d] rounded-2xl border border-amber-500/20 shadow-lg no-scrollbar">
+        <div className="flex items-center gap-1.5 text-xs font-bold text-slate-400 shrink-0 mr-1">
+          <History className="w-3.5 h-3.5 text-amber-400" />
+          <span>Recent Multipliers:</span>
         </div>
         {history.map((h, i) => {
           const isHigh = h >= 3.0;
@@ -340,10 +303,10 @@ export const CrashGame: React.FC<CrashGameProps> = ({ onBackToLobby }) => {
               key={i}
               className={`text-xs font-black px-2.5 py-1 rounded-lg shrink-0 border ${
                 isHigh
-                  ? 'bg-blue-50 text-blue-700 border-blue-200 shadow-sm'
+                  ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 shadow-sm'
                   : isMid
-                  ? 'bg-sky-50 text-sky-700 border-sky-200'
-                  : 'bg-slate-100 text-slate-600 border-slate-200'
+                  ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+                  : 'bg-slate-900 text-slate-400 border-slate-800'
               }`}
             >
               {h.toFixed(2)}x
@@ -353,7 +316,7 @@ export const CrashGame: React.FC<CrashGameProps> = ({ onBackToLobby }) => {
       </div>
 
       {/* Main Canvas & Flight Arena */}
-      <div className="relative rounded-3xl overflow-hidden border-2 border-blue-200 shadow-xl bg-slate-900">
+      <div className="relative rounded-3xl overflow-hidden border-2 border-amber-500/30 shadow-2xl bg-[#0a0d14]">
         <canvas
           ref={canvasRef}
           width={800}
@@ -364,12 +327,12 @@ export const CrashGame: React.FC<CrashGameProps> = ({ onBackToLobby }) => {
         {/* Big Center Multiplier Display */}
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
           {gameState === 'idle' && (
-            <div className="text-center p-4 rounded-2xl bg-slate-900/80 backdrop-blur-md border border-blue-400/30">
-              <Rocket className="w-10 h-10 text-blue-400 mx-auto mb-2 animate-bounce" />
+            <div className="text-center p-4 rounded-2xl bg-[#0f141d]/90 backdrop-blur-md border border-amber-500/30">
+              <Rocket className="w-10 h-10 text-amber-400 mx-auto mb-2 animate-bounce" />
               <h2 className="text-2xl sm:text-3xl font-black text-white tracking-wider font-serif-luxury">
                 Crash Rocket
               </h2>
-              <p className="text-xs sm:text-sm text-blue-200 mt-1">
+              <p className="text-xs sm:text-sm text-slate-300 mt-1">
                 Place your bet, launch into orbit, and cash out before the rocket crashes!
               </p>
             </div>
@@ -377,38 +340,38 @@ export const CrashGame: React.FC<CrashGameProps> = ({ onBackToLobby }) => {
 
           {gameState === 'flying' && (
             <div className="text-center">
-              <span className="text-5xl sm:text-7xl font-black text-white tracking-tight font-serif-luxury drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">
+              <span className="text-5xl sm:text-7xl font-black text-white tracking-tight font-serif-luxury drop-shadow-[0_4px_16px_rgba(0,0,0,0.9)]">
                 {multiplier.toFixed(2)}
-                <span className="text-blue-400 text-4xl sm:text-5xl">x</span>
+                <span className="text-amber-400 text-4xl sm:text-5xl">x</span>
               </span>
-              <p className="text-xs sm:text-sm font-bold text-sky-300 tracking-wider uppercase mt-1">
+              <p className="text-xs sm:text-sm font-bold text-amber-300 tracking-wider uppercase mt-1">
                 Current Altitude
               </p>
             </div>
           )}
 
           {gameState === 'crashed' && (
-            <div className="text-center p-4 rounded-2xl bg-rose-950/80 backdrop-blur-md border border-rose-500/40 animate-shake">
+            <div className="text-center p-4 rounded-2xl bg-rose-950/85 backdrop-blur-md border border-rose-500/40 animate-shake">
               <span className="text-xs font-extrabold text-rose-300 uppercase tracking-widest block mb-1">
                 Crashed At
               </span>
               <span className="text-5xl sm:text-6xl font-black text-rose-400 font-serif-luxury">
                 {multiplier.toFixed(2)}x
               </span>
-              <p className="text-xs text-rose-200 font-medium mt-1">Better luck next flight!</p>
+              <p className="text-xs text-rose-200 font-medium mt-1">Flight ended. Better luck next orbit!</p>
             </div>
           )}
 
           {gameState === 'cashed-out' && (
-            <div className="text-center p-4 rounded-2xl bg-blue-950/85 backdrop-blur-md border border-blue-400/50">
-              <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-blue-500/20 text-blue-300 text-xs font-bold uppercase mb-2">
-                <Trophy className="w-3.5 h-3.5 text-blue-400" />
+            <div className="text-center p-4 rounded-2xl bg-[#141a27]/90 backdrop-blur-md border border-amber-500/50">
+              <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold uppercase mb-2">
+                <Trophy className="w-3.5 h-3.5 text-emerald-400" />
                 <span>Cashed Out Successfully!</span>
               </div>
               <span className="text-4xl sm:text-5xl font-black text-white font-serif-luxury block">
                 +${Math.floor(currentBet * cashoutMultiplier).toLocaleString()}
               </span>
-              <span className="text-xs font-bold text-blue-300">
+              <span className="text-xs font-bold text-amber-300">
                 Locked in at {cashoutMultiplier.toFixed(2)}x (Crashed at {crashPoint.toFixed(2)}x)
               </span>
             </div>
@@ -416,8 +379,8 @@ export const CrashGame: React.FC<CrashGameProps> = ({ onBackToLobby }) => {
         </div>
       </div>
 
-      {/* Control Console: White & Blue */}
-      <div className="white-panel rounded-3xl p-6 space-y-6">
+      {/* Control Console: 24K Gold & Obsidian */}
+      <div className="bg-[#0f141d] border border-amber-500/20 rounded-3xl p-6 space-y-6 shadow-2xl">
         
         {/* Chip Denomination Selector */}
         <ChipSelector
@@ -432,12 +395,12 @@ export const CrashGame: React.FC<CrashGameProps> = ({ onBackToLobby }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           
           {/* Bet Input and Presets */}
-          <div className="bg-blue-50/50 border border-blue-100 rounded-2xl p-4 space-y-3">
+          <div className="bg-[#141926] border border-slate-800 rounded-2xl p-4 space-y-3">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">
                 Current Wager:
               </label>
-              <span className="text-lg font-black text-blue-700 font-serif-luxury">
+              <span className="text-lg font-black text-amber-400 font-serif-luxury">
                 ${currentBet.toLocaleString()}
               </span>
             </div>
@@ -453,8 +416,8 @@ export const CrashGame: React.FC<CrashGameProps> = ({ onBackToLobby }) => {
                   }}
                   className={`flex-1 py-1.5 rounded-xl text-xs font-bold border transition-all ${
                     currentBet === amt
-                      ? 'bg-blue-600 text-white border-blue-600 shadow-md'
-                      : 'bg-white text-slate-700 border-slate-200 hover:border-blue-300 hover:bg-blue-50/50'
+                      ? 'bg-amber-500 text-slate-950 border-amber-400 font-black shadow-md'
+                      : 'bg-slate-900 text-slate-300 border-slate-800 hover:border-amber-500/40'
                   } disabled:opacity-40`}
                 >
                   ${amt}
@@ -464,7 +427,7 @@ export const CrashGame: React.FC<CrashGameProps> = ({ onBackToLobby }) => {
           </div>
 
           {/* Auto Cashout Config */}
-          <div className="bg-blue-50/50 border border-blue-100 rounded-2xl p-4 space-y-3">
+          <div className="bg-[#141926] border border-slate-800 rounded-2xl p-4 space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <input
@@ -473,16 +436,16 @@ export const CrashGame: React.FC<CrashGameProps> = ({ onBackToLobby }) => {
                   checked={autoCashoutEnabled}
                   disabled={gameState === 'flying'}
                   onChange={(e) => setAutoCashoutEnabled(e.target.checked)}
-                  className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300 cursor-pointer"
+                  className="w-4 h-4 rounded text-amber-500 focus:ring-amber-500 border-slate-700 bg-slate-900 cursor-pointer"
                 />
                 <label
                   htmlFor="auto-cashout-toggle"
-                  className="text-xs font-bold text-slate-700 uppercase tracking-wider cursor-pointer select-none"
+                  className="text-xs font-bold text-slate-300 uppercase tracking-wider cursor-pointer select-none"
                 >
                   Auto Cashout Target:
                 </label>
               </div>
-              <span className="text-sm font-black text-blue-600">
+              <span className="text-sm font-black text-amber-400">
                 {autoCashout.toFixed(1)}x
               </span>
             </div>
@@ -499,8 +462,8 @@ export const CrashGame: React.FC<CrashGameProps> = ({ onBackToLobby }) => {
                   }}
                   className={`flex-1 py-1.5 rounded-xl text-xs font-bold border transition-all ${
                     autoCashout === multiplierVal && autoCashoutEnabled
-                      ? 'bg-blue-600 text-white border-blue-600 shadow-md'
-                      : 'bg-white text-slate-700 border-slate-200 hover:border-blue-300 hover:bg-blue-50/50'
+                      ? 'bg-amber-500 text-slate-950 border-amber-400 font-black shadow-md'
+                      : 'bg-slate-900 text-slate-300 border-slate-800 hover:border-amber-500/40'
                   } disabled:opacity-40`}
                 >
                   {multiplierVal}x
@@ -518,9 +481,9 @@ export const CrashGame: React.FC<CrashGameProps> = ({ onBackToLobby }) => {
               id="crash-launch-btn"
               onClick={handleStartFlight}
               disabled={currentBet <= 0 || currentBet > balance}
-              className="w-full py-4 rounded-2xl font-black text-lg uppercase tracking-wider text-white bg-gradient-to-r from-blue-600 via-blue-500 to-sky-500 hover:brightness-105 shadow-xl shadow-blue-500/20 active:scale-[0.99] transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+              className="w-full py-4 rounded-2xl font-black text-lg uppercase tracking-wider text-slate-950 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 hover:brightness-110 shadow-xl shadow-amber-500/25 active:scale-[0.99] transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-3"
             >
-              <Rocket className="w-6 h-6 animate-bounce" />
+              <Rocket className="w-6 h-6 animate-bounce text-slate-950" />
               <span>Launch Rocket (${currentBet.toLocaleString()})</span>
             </button>
           ) : (

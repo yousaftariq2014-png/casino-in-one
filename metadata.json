@@ -1,6 +1,6 @@
 {
-  "name": "Grand Royale Casino",
-  "description": "An exhilarating virtual casino in luxury White & Blue featuring 6 games: Slots, European Roulette, Blackjack 21, Plinko, Crash Rocket, and Diamond Mines.",
+  "name": "Grand Royale VIP Casino",
+  "description": "A premier virtual luxury casino featuring 6 certified fair games: Slots, European Roulette, Blackjack 21, Plinko, Crash Rocket, and Diamond Mines with international regulatory certification.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

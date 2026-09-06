@@ -11,20 +11,26 @@ import { CrashGame } from './components/games/CrashGame';
 import { MinesGame } from './components/games/MinesGame';
 import { DailyBonusModal } from './components/DailyBonusModal';
 import { StatsModal } from './components/StatsModal';
+import { CertificatesModal } from './components/CertificatesModal';
 
 function CasinoApp() {
   const [currentGame, setCurrentGame] = useState<GameType>('lobby');
+  const [showCertificates, setShowCertificates] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#0a0d14] text-slate-100 flex flex-col font-sans selection:bg-amber-500 selection:text-slate-950">
       <Navbar
         currentGame={currentGame}
         onSelectGame={(game) => setCurrentGame(game)}
+        onOpenCertificates={() => setShowCertificates(true)}
       />
 
       <main className="flex-1 pb-12">
         {currentGame === 'lobby' && (
-          <Lobby onSelectGame={(game) => setCurrentGame(game)} />
+          <Lobby
+            onSelectGame={(game) => setCurrentGame(game)}
+            onOpenCertificates={() => setShowCertificates(true)}
+          />
         )}
 
         {currentGame === 'slots' && (
@@ -55,6 +61,10 @@ function CasinoApp() {
       {/* Global Modals */}
       <DailyBonusModal />
       <StatsModal />
+      <CertificatesModal
+        isOpen={showCertificates}
+        onClose={() => setShowCertificates(false)}
+      />
     </div>
   );
 }

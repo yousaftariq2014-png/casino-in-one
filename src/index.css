@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: 'Outfit', sans-serif;
+  }
+
+  h1, h2, h3, .font-serif-luxury {
+    font-family: 'Cinzel', serif;
+  }
+}
+
+/* Custom White & Royal Blue Casino Styling */
+.blue-gradient-text {
+  background: linear-gradient(135deg, #1e40af 0%, #2563eb 45%, #0284c7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gold-gradient-text {
+  background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 40%, #0284c7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.felt-blue {
+  background: radial-gradient(circle at 50% 35%, #1e40af 0%, #1e3a8a 60%, #0f172a 100%);
+}
+
+.felt-roulette-blue {
+  background: radial-gradient(circle at 50% 40%, #1d4ed8 0%, #172554 70%, #090e17 100%);
+}
+
+.white-panel {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.08), 0 8px 10px -6px rgba(37, 99, 235, 0.04);
+}
+
+.chip-shadow {
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.25), inset 0 2px 2px rgba(255, 255, 255, 0.6), inset 0 -2px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Custom Scrollbars in clean blue & white */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #2563eb;
+}

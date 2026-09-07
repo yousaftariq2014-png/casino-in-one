@@ -231,14 +231,14 @@ export const RouletteGame: React.FC<RouletteGameProps> = ({ onBackToLobby }) => 
         </button>
 
         {/* History Billboard */}
-        <div className="flex items-center gap-1.5 overflow-x-auto bg-zinc-950/80 px-3 py-1.5 rounded-xl border border-zinc-800">
-          <span className="text-[10px] uppercase font-bold text-zinc-500 mr-1">History:</span>
+        <div className="hidden sm:flex items-center gap-1.5 overflow-x-auto bg-zinc-950/80 px-3 py-1.5 rounded-xl border border-zinc-800 max-w-[200px] md:max-w-none no-scrollbar">
+          <span className="text-[10px] uppercase font-bold text-zinc-500 mr-1 shrink-0">History:</span>
           {history.map((num, idx) => {
             const col = getNumberColor(num);
             return (
               <span
                 key={idx}
-                className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-black shadow ${
+                className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-black shadow shrink-0 ${
                   col === 'green'
                     ? 'bg-emerald-600 text-white'
                     : col === 'red'

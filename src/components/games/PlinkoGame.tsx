@@ -336,15 +336,15 @@ export const PlinkoGame: React.FC<PlinkoGameProps> = ({ onBackToLobby }) => {
         </button>
 
         {/* Multiplier History Pill */}
-        <div className="flex items-center gap-1.5 overflow-x-auto bg-zinc-950/80 px-3 py-1.5 rounded-xl border border-zinc-800 text-xs">
-          <span className="text-[10px] uppercase font-bold text-zinc-500 mr-1">History:</span>
+        <div className="hidden sm:flex items-center gap-1.5 overflow-x-auto bg-zinc-950/80 px-3 py-1.5 rounded-xl border border-zinc-800 text-xs max-w-[200px] md:max-w-none no-scrollbar">
+          <span className="text-[10px] uppercase font-bold text-zinc-500 mr-1 shrink-0">History:</span>
           {recentDrops.length === 0 ? (
-            <span className="text-zinc-500 text-[11px]">Drop orbs to start</span>
+            <span className="text-zinc-500 text-[11px] whitespace-nowrap">Drop orbs to start</span>
           ) : (
             recentDrops.map((drop, idx) => (
               <span
                 key={idx}
-                className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                className={`px-1.5 py-0.5 rounded text-[10px] font-bold shrink-0 ${
                   drop.mult >= 2
                     ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40'
                     : drop.mult >= 1

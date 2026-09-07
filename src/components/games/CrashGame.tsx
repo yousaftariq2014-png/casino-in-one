@@ -301,11 +301,11 @@ export const CrashGame: React.FC<CrashGameProps> = ({ onBackToLobby }) => {
           <span>Back to Lobby</span>
         </button>
 
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-bold uppercase tracking-wider text-amber-300 bg-amber-500/15 px-3 py-1 rounded-full border border-amber-500/30">
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-amber-300 bg-amber-500/15 px-2.5 sm:px-3 py-1 rounded-full border border-amber-500/30">
             Multiplier Rocket
           </span>
-          <span className="text-xs font-bold text-slate-400 bg-slate-900 px-3 py-1 rounded-full border border-slate-800">
+          <span className="hidden sm:inline-block text-xs font-bold text-slate-400 bg-slate-900 px-3 py-1 rounded-full border border-slate-800">
             RTP 98.5% • Provably Fair
           </span>
         </div>

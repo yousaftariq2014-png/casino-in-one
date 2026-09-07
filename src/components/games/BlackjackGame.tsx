@@ -389,8 +389,11 @@ export const BlackjackGame: React.FC<BlackjackGameProps> = ({ onBackToLobby }) =
         </button>
 
         <div className="flex items-center gap-2">
-          <span className="px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/40 text-amber-300 text-xs font-bold">
+          <span className="hidden sm:inline-block px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/40 text-amber-300 text-xs font-bold">
             Blackjack Pays 3:2 • Dealer stands on 17 • Certified Fair
+          </span>
+          <span className="sm:hidden px-2.5 py-1 rounded-full bg-amber-500/15 border border-amber-500/40 text-amber-300 text-[10px] font-bold">
+            Pays 3:2 • Stand 17
           </span>
         </div>
       </div>

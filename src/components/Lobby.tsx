@@ -175,7 +175,7 @@ export const Lobby: React.FC<LobbyProps> = ({ onSelectGame, onOpenCertificates, 
             sound.playChip();
             if (onOpenCertificates) onOpenCertificates();
           }}
-          className="shrink-0 flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500/20 to-yellow-500/10 hover:from-amber-500/30 hover:to-yellow-500/20 border border-amber-500/40 text-amber-300 hover:text-white text-xs font-bold transition-all active:scale-95 shadow-sm"
+          className="w-full sm:w-auto shrink-0 flex items-center justify-center gap-2 px-3.5 py-2 sm:py-1.5 rounded-xl bg-gradient-to-r from-amber-500/20 to-yellow-500/10 hover:from-amber-500/30 hover:to-yellow-500/20 border border-amber-500/40 text-amber-300 hover:text-white text-xs font-bold transition-all active:scale-95 shadow-sm"
         >
           <FileCheck className="w-3.5 h-3.5 text-amber-400" />
           <span>Verify Official Certificates & RNG</span>

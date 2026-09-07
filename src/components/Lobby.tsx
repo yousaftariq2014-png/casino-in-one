@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { GameType } from '../types';
 import { useCasino } from '../context/CasinoContext';
 import { sound } from '../utils/audio';
+import { LiveBetsFeed } from './LiveBetsFeed';
 import { 
   Sparkles, 
   Flame, 
@@ -14,16 +15,32 @@ import {
   Lock,
   CheckCircle2,
   FileCheck,
-  TrendingUp
+  TrendingUp,
+  Gift,
+  Zap,
+  Music
 } from 'lucide-react';
 
 interface LobbyProps {
   onSelectGame: (game: GameType) => void;
   onOpenCertificates?: () => void;
+  onOpenStore?: () => void;
+  onOpenVipClub?: () => void;
 }
 
-export const Lobby: React.FC<LobbyProps> = ({ onSelectGame, onOpenCertificates }) => {
-  const { balance, liveWins, setShowBonusWheel } = useCasino();
+export const Lobby: React.FC<LobbyProps> = ({ onSelectGame, onOpenCertificates, onOpenStore, onOpenVipClub }) => {
+  const {
+    balance,
+    liveWins,
+    setShowBonusWheel,
+    vipTier,
+    rakebackAvailable,
+    claimRakeback,
+    faucetCooldown,
+    claimFaucet,
+    loungeMusicEnabled,
+    toggleLoungeMusic,
+  } = useCasino();
   const [jackpot, setJackpot] = useState(1489240.50);
 
   // Progressive jackpot ticker that gently increments
@@ -110,7 +127,7 @@ export const Lobby: React.FC<LobbyProps> = ({ onSelectGame, onOpenCertificates }
   ];
 
   return (
-    <div id="casino-lobby" className="max-w-7xl mx-auto px-3 sm:px-6 py-6 sm:py-8 space-y-8">
+    <div id="casino-lobby" className="w-full max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-8 space-y-6 sm:space-y-8 overflow-x-hidden">
       
       {/* Official Trust & Regulatory Certification Ribbon */}
       <section className="bg-gradient-to-r from-[#141926] via-[#10141f] to-[#141926] border border-amber-500/30 rounded-2xl p-3.5 sm:p-4 shadow-xl flex flex-col lg:flex-row items-center justify-between gap-4">
@@ -208,6 +225,19 @@ export const Lobby: React.FC<LobbyProps> = ({ onSelectGame, onOpenCertificates }
               </button>
 
               <button
+                id="hero-buy-chips-btn"
+                onClick={() => {
+                  sound.playChip();
+                  if (onOpenStore) onOpenStore();
+                }}
+                className="px-5 py-3.5 rounded-xl font-black text-xs sm:text-sm bg-gradient-to-r from-emerald-600 to-teal-500 text-white hover:brightness-110 shadow-lg shadow-emerald-950/40 border border-emerald-400/40 flex items-center gap-2 transition-all active:scale-95"
+              >
+                <Coins className="w-4 h-4 text-yellow-300" />
+                <span>Buy Chips (Cashier)</span>
+              </button>
+
+              <button
+                id="hero-bonus-btn"
                 onClick={() => {
                   sound.playChip();
                   setShowBonusWheel(true);
@@ -255,11 +285,40 @@ export const Lobby: React.FC<LobbyProps> = ({ onSelectGame, onOpenCertificates }
               </div>
               <div>
                 <span className="text-[10px] text-slate-400 uppercase block font-semibold">VIP Status</span>
-                <span className="font-black text-emerald-400 flex items-center gap-1 text-sm">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                  Diamond VIP
-                </span>
+                <button
+                  onClick={() => {
+                    sound.playChip();
+                    if (onOpenVipClub) onOpenVipClub();
+                  }}
+                  className="font-black text-amber-300 flex items-center gap-1 text-xs hover:underline"
+                >
+                  <span>{vipTier.icon}</span>
+                  <span>{vipTier.tier} VIP</span>
+                </button>
               </div>
+            </div>
+
+            {/* Quick Rakeback / Free Faucet in Jackpot Box */}
+            <div className="mt-3 pt-2.5 border-t border-slate-800/80 flex items-center justify-between gap-2">
+              <button
+                onClick={() => {
+                  sound.playChip();
+                  if (onOpenVipClub) onOpenVipClub();
+                }}
+                className="flex-1 py-1.5 px-2 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-[10px] font-bold text-amber-300 flex items-center justify-center gap-1 transition-all"
+              >
+                <Sparkles className="w-3 h-3 text-amber-400" />
+                <span>Rakeback: ${rakebackAvailable.toFixed(1)}</span>
+              </button>
+
+              <button
+                onClick={claimFaucet}
+                disabled={faucetCooldown > 0}
+                className="py-1.5 px-2.5 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 disabled:opacity-50 border border-cyan-500/40 text-[10px] font-bold text-cyan-300 flex items-center justify-center gap-1 transition-all"
+              >
+                <Zap className="w-3 h-3 text-cyan-400" />
+                <span>{faucetCooldown > 0 ? `${Math.floor(faucetCooldown / 60)}m` : 'Free +1k'}</span>
+              </button>
             </div>
           </div>
 
@@ -365,6 +424,11 @@ export const Lobby: React.FC<LobbyProps> = ({ onSelectGame, onOpenCertificates }
             </div>
           ))}
         </div>
+      </section>
+
+      {/* Live Bets Feed Component */}
+      <section className="space-y-2">
+        <LiveBetsFeed />
       </section>
 
       {/* Safety, Regulatory & Responsible Play Notice */}

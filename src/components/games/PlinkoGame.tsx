@@ -78,7 +78,7 @@ interface PlinkoGameProps {
 }
 
 export const PlinkoGame: React.FC<PlinkoGameProps> = ({ onBackToLobby }) => {
-  const { balance, modifyBalance, selectedChip } = useCasino();
+  const { balance, modifyBalance, selectedChip, recordGameRound } = useCasino();
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [risk, setRisk] = useState<PlinkoRisk>('medium');
@@ -213,6 +213,16 @@ export const PlinkoGame: React.FC<PlinkoGameProps> = ({ onBackToLobby }) => {
 
           const hitBucket = buckets[bucketIndex];
           const payout = Math.round(ball.betAmount * hitBucket.multiplier);
+
+          recordGameRound({
+            game: 'plinko',
+            gameName: 'Plinko Galaxy',
+            bet: ball.betAmount,
+            payout,
+            multiplier: hitBucket.multiplier,
+            outcome: payout > ball.betAmount ? 'win' : payout === ball.betAmount ? 'push' : 'loss',
+            details: `Landed in ${hitBucket.label} Bucket (${risk.toUpperCase()} Risk)`,
+          });
 
           modifyBalance(payout, 'plinko');
           setLastWin(payout);

@@ -23,7 +23,7 @@ interface CrashGameProps {
 type CrashGameState = 'idle' | 'flying' | 'crashed' | 'cashed-out';
 
 export const CrashGame: React.FC<CrashGameProps> = ({ onBackToLobby }) => {
-  const { balance, modifyBalance, selectedChip, setSelectedChip } = useCasino();
+  const { balance, modifyBalance, selectedChip, setSelectedChip, recordGameRound } = useCasino();
 
   const [gameState, setGameState] = useState<CrashGameState>('idle');
   const [currentBet, setCurrentBet] = useState<number>(50);
@@ -93,6 +93,18 @@ export const CrashGame: React.FC<CrashGameProps> = ({ onBackToLobby }) => {
         sound.playLose();
         drawCanvas(crashPointRef.current, true);
         setHistory((prev) => [crashPointRef.current, ...prev.slice(0, 10)]);
+
+        if (!hasCashedOutRef.current) {
+          recordGameRound({
+            game: 'crash',
+            gameName: 'Rocket Crash',
+            bet: currentBetRef.current,
+            payout: 0,
+            multiplier: 0,
+            outcome: 'loss',
+            details: `Rocket crashed at ${crashPointRef.current.toFixed(2)}x before cashout`,
+          });
+        }
         return;
       }
 
@@ -119,6 +131,16 @@ export const CrashGame: React.FC<CrashGameProps> = ({ onBackToLobby }) => {
 
     const winAmount = Math.floor(currentBetRef.current * finalMultiplier);
     modifyBalance(winAmount, 'crash');
+
+    recordGameRound({
+      game: 'crash',
+      gameName: 'Rocket Crash',
+      bet: currentBetRef.current,
+      payout: winAmount,
+      multiplier: parseFloat(finalMultiplier.toFixed(2)),
+      outcome: 'win',
+      details: `Ejected safely at ${finalMultiplier.toFixed(2)}x multiplier`,
+    });
 
     if (finalMultiplier >= 5) {
       sound.playBigWin();

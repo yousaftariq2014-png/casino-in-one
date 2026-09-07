@@ -30,6 +30,67 @@ export interface LiveWinFeedItem {
   timeAgo: string;
 }
 
+export interface LiveCasinoBet {
+  id: string;
+  player: string;
+  game: GameType;
+  gameName: string;
+  bet: number;
+  multiplier: number;
+  payout: number;
+  time: string;
+  isHighRoller?: boolean;
+}
+
+export interface BigWinData {
+  amount: number;
+  multiplier: number;
+  gameName: string;
+  tier: 'big' | 'mega' | 'epic' | 'jackpot';
+}
+
+export interface VipTierInfo {
+  tier: 'Bronze' | 'Silver' | 'Gold' | 'Platinum' | 'Diamond' | 'Royal Crown';
+  icon: string;
+  minWager: number;
+  color: string;
+  perk: string;
+  cashbackPct: number;
+}
+
+// Game Telemetry Logs for Owner/Admin
+export interface GameLogEntry {
+  id: string;
+  timestamp: string;
+  date: string;
+  player: string;
+  game: GameType;
+  gameName: string;
+  betAmount: number;
+  payoutAmount: number;
+  multiplier: number;
+  outcome: 'win' | 'loss' | 'push';
+  houseProfit: number; // positive = House won money, negative = Player won payout
+  details?: string;
+}
+
+// Chip Store & Deposit Transactions
+export interface DepositOrder {
+  id: string;
+  timestamp: string;
+  date: string;
+  player: string;
+  packageTitle: string;
+  amountUsd: number;
+  chipsAmount: number;
+  paymentMethod: 'easypaisa' | 'jazzcash' | 'crypto_usdt' | 'card';
+  accountOrWallet: string;
+  status: 'completed' | 'pending' | 'rejected';
+  txRef: string;
+}
+
+export type HouseRtpPreset = 'high_profit' | 'standard' | 'generous';
+
 // Roulette Types
 export type RouletteBetType = 
   | 'number'

@@ -45,7 +45,7 @@ interface SlotsGameProps {
 }
 
 export const SlotsGame: React.FC<SlotsGameProps> = ({ onBackToLobby }) => {
-  const { balance, modifyBalance, selectedChip, setSelectedChip } = useCasino();
+  const { balance, modifyBalance, selectedChip, setSelectedChip, recordGameRound } = useCasino();
 
   // Grid is 5 columns x 3 rows
   const [grid, setGrid] = useState<SlotSymbol[][]>([
@@ -183,6 +183,16 @@ export const SlotsGame: React.FC<SlotsGameProps> = ({ onBackToLobby }) => {
         if (reelIdx === 4) {
           setIsSpinning(false);
           const { totalWin, matchedLines, matchedCoords } = evaluateGridWins(finalGrid, currentBet);
+
+          recordGameRound({
+            game: 'slots',
+            gameName: 'Neon Slots',
+            bet: currentBet,
+            payout: totalWin,
+            multiplier: totalWin > 0 ? parseFloat((totalWin / currentBet).toFixed(2)) : 0,
+            outcome: totalWin > 0 ? 'win' : 'loss',
+            details: matchedLines.length > 0 ? `${matchedLines.length} Payline(s) Hit` : 'No Payline Matched',
+          });
 
           if (totalWin > 0) {
             modifyBalance(totalWin, 'slots');

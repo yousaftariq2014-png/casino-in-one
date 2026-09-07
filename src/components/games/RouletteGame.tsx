@@ -33,7 +33,7 @@ interface RouletteGameProps {
 }
 
 export const RouletteGame: React.FC<RouletteGameProps> = ({ onBackToLobby }) => {
-  const { balance, modifyBalance, selectedChip } = useCasino();
+  const { balance, modifyBalance, selectedChip, recordGameRound } = useCasino();
 
   const [bets, setBets] = useState<RouletteBet[]>([]);
   const [isSpinning, setIsSpinning] = useState(false);
@@ -175,6 +175,17 @@ export const RouletteGame: React.FC<RouletteGameProps> = ({ onBackToLobby }) => 
       let totalPayout = 0;
       bets.forEach((bet) => {
         totalPayout += evaluateBet(bet, winNum);
+      });
+
+      const winColor = getNumberColor(winNum);
+      recordGameRound({
+        game: 'roulette',
+        gameName: 'European Roulette',
+        bet: totalBetAmount,
+        payout: totalPayout,
+        multiplier: totalBetAmount > 0 ? parseFloat((totalPayout / totalBetAmount).toFixed(2)) : 0,
+        outcome: totalPayout > totalBetAmount ? 'win' : totalPayout === totalBetAmount ? 'push' : 'loss',
+        details: `Landed on ${winNum} ${winColor.toUpperCase()} (${bets.length} bets placed)`,
       });
 
       if (totalPayout > 0) {

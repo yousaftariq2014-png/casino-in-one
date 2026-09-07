@@ -25,7 +25,7 @@ interface TileState {
 }
 
 export const MinesGame: React.FC<MinesGameProps> = ({ onBackToLobby }) => {
-  const { balance, modifyBalance, selectedChip, setSelectedChip } = useCasino();
+  const { balance, modifyBalance, selectedChip, setSelectedChip, recordGameRound } = useCasino();
 
   const [mineCount, setMineCount] = useState<number>(3);
   const [currentBet, setCurrentBet] = useState<number>(50);
@@ -94,6 +94,16 @@ export const MinesGame: React.FC<MinesGameProps> = ({ onBackToLobby }) => {
       setGameActive(false);
       setHasWon(false);
 
+      recordGameRound({
+        game: 'mines',
+        gameName: 'Diamond Mines',
+        bet: currentBet,
+        payout: 0,
+        multiplier: 0,
+        outcome: 'loss',
+        details: `Hit a Mine after finding ${gemsFound} diamond(s) (${mineCount} mines grid)`,
+      });
+
       // Reveal all mines
       setTiles((prev) =>
         prev.map((t) => (t.isMine ? { ...t, revealed: true } : t))
@@ -123,6 +133,16 @@ export const MinesGame: React.FC<MinesGameProps> = ({ onBackToLobby }) => {
 
     const mult = getMultiplier(activeGems, mineCount);
     const winAmount = Math.floor(currentBet * mult);
+
+    recordGameRound({
+      game: 'mines',
+      gameName: 'Diamond Mines',
+      bet: currentBet,
+      payout: winAmount,
+      multiplier: mult,
+      outcome: 'win',
+      details: `Safely cashed out ${activeGems} diamond(s) at ${mult.toFixed(2)}x (${mineCount} mines grid)`,
+    });
 
     modifyBalance(winAmount, 'mines');
     setLastWinAmount(winAmount);

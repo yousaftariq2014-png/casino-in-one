@@ -54,7 +54,7 @@ interface BlackjackGameProps {
 }
 
 export const BlackjackGame: React.FC<BlackjackGameProps> = ({ onBackToLobby }) => {
-  const { balance, modifyBalance, selectedChip } = useCasino();
+  const { balance, modifyBalance, selectedChip, recordGameRound } = useCasino();
 
   const [deck, setDeck] = useState<PlayingCard[]>(createDeck());
   const [playerHand, setPlayerHand] = useState<PlayingCard[]>([]);
@@ -134,6 +134,15 @@ export const BlackjackGame: React.FC<BlackjackGameProps> = ({ onBackToLobby }) =
         setStage('resolved');
         modifyBalance(betToUse, 'blackjack');
         setGameResult({ text: 'Both Blackjack! Push.', type: 'push', payout: betToUse });
+        recordGameRound({
+          game: 'blackjack',
+          gameName: 'Royal Blackjack',
+          bet: betToUse,
+          payout: betToUse,
+          multiplier: 1.0,
+          outcome: 'push',
+          details: 'Both Player & Dealer dealt Natural Blackjack (Push)',
+        });
         sound.playChip();
       } else {
         // Player Blackjack: 3:2 payout (bet + 1.5 * bet = 2.5x)
@@ -141,6 +150,15 @@ export const BlackjackGame: React.FC<BlackjackGameProps> = ({ onBackToLobby }) =
         setStage('resolved');
         modifyBalance(payout, 'blackjack');
         setGameResult({ text: 'BLACKJACK! Pays 3:2!', type: 'blackjack', payout });
+        recordGameRound({
+          game: 'blackjack',
+          gameName: 'Royal Blackjack',
+          bet: betToUse,
+          payout,
+          multiplier: 2.5,
+          outcome: 'win',
+          details: 'Player Natural Blackjack (3:2 Payout)',
+        });
         sound.playBigWin();
         confetti({ particleCount: 100, spread: 70 });
       }
@@ -163,6 +181,15 @@ export const BlackjackGame: React.FC<BlackjackGameProps> = ({ onBackToLobby }) =
       // Player Busts
       setStage('resolved');
       setGameResult({ text: 'Bust! Hand over 21.', type: 'lose', payout: 0 });
+      recordGameRound({
+        game: 'blackjack',
+        gameName: 'Royal Blackjack',
+        bet: currentBet,
+        payout: 0,
+        multiplier: 0,
+        outcome: 'loss',
+        details: `Player Busted with ${val}`,
+      });
       sound.playLose();
     } else if (val === 21) {
       // Auto-stand on 21
@@ -191,6 +218,15 @@ export const BlackjackGame: React.FC<BlackjackGameProps> = ({ onBackToLobby }) =
     if (val > 21) {
       setStage('resolved');
       setGameResult({ text: 'Bust on Double Down!', type: 'lose', payout: 0 });
+      recordGameRound({
+        game: 'blackjack',
+        gameName: 'Royal Blackjack',
+        bet: doubledBet,
+        payout: 0,
+        multiplier: 0,
+        outcome: 'loss',
+        details: `Player Double Down Busted with ${val}`,
+      });
       sound.playLose();
     } else {
       handleStand(updatedHand, doubledBet);
@@ -236,6 +272,15 @@ export const BlackjackGame: React.FC<BlackjackGameProps> = ({ onBackToLobby }) =
       const payout = betAmount * 2;
       modifyBalance(payout, 'blackjack');
       setGameResult({ text: 'Dealer Busts! You Win!', type: 'win', payout });
+      recordGameRound({
+        game: 'blackjack',
+        gameName: 'Royal Blackjack',
+        bet: betAmount,
+        payout,
+        multiplier: 2.0,
+        outcome: 'win',
+        details: `Dealer Busted with ${dVal} (Player held ${pVal})`,
+      });
       sound.playWin();
       confetti({ particleCount: 80, spread: 60 });
     } else if (pVal > dVal) {
@@ -243,15 +288,42 @@ export const BlackjackGame: React.FC<BlackjackGameProps> = ({ onBackToLobby }) =
       const payout = betAmount * 2;
       modifyBalance(payout, 'blackjack');
       setGameResult({ text: `You Win! (${pVal} vs ${dVal})`, type: 'win', payout });
+      recordGameRound({
+        game: 'blackjack',
+        gameName: 'Royal Blackjack',
+        bet: betAmount,
+        payout,
+        multiplier: 2.0,
+        outcome: 'win',
+        details: `Player ${pVal} beat Dealer ${dVal}`,
+      });
       sound.playWin();
     } else if (pVal === dVal) {
       // Push
       modifyBalance(betAmount, 'blackjack');
       setGameResult({ text: `Push! Tied at ${pVal}.`, type: 'push', payout: betAmount });
+      recordGameRound({
+        game: 'blackjack',
+        gameName: 'Royal Blackjack',
+        bet: betAmount,
+        payout: betAmount,
+        multiplier: 1.0,
+        outcome: 'push',
+        details: `Tied at ${pVal} (Push)`,
+      });
       sound.playChip();
     } else {
       // Dealer wins
       setGameResult({ text: `Dealer Wins with ${dVal}.`, type: 'lose', payout: 0 });
+      recordGameRound({
+        game: 'blackjack',
+        gameName: 'Royal Blackjack',
+        bet: betAmount,
+        payout: 0,
+        multiplier: 0,
+        outcome: 'loss',
+        details: `Dealer ${dVal} beat Player ${pVal}`,
+      });
       sound.playLose();
     }
   };

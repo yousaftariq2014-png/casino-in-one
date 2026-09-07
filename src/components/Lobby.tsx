@@ -337,7 +337,7 @@ export const Lobby: React.FC<LobbyProps> = ({
               <div className="space-y-4 animate-in fade-in duration-300">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/50 text-amber-300 text-xs font-black uppercase tracking-wider shadow-inner">
                   <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-spin" />
-                  <span>Exclusive Welcome Package</span>
+                  <span>+$500 Welcome Bonus Chips</span>
                 </div>
 
                 <h1 className="text-3xl sm:text-5xl font-black font-serif-luxury text-white tracking-wide leading-tight">
@@ -348,7 +348,7 @@ export const Lobby: React.FC<LobbyProps> = ({
                 </h1>
 
                 <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
-                  The ultimate Las Vegas & Monte Carlo high-roller experience. Enjoy 6 certified games with complimentary chips, dynamic sounds, and instant payouts.
+                  The ultimate Las Vegas & Monte Carlo high-roller experience. Every new client starts with 500 complimentary welcome chips. Spin the daily wheel once every 24 hours.
                 </p>
               </div>
             )}

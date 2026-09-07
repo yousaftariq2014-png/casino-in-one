@@ -70,7 +70,7 @@ interface CasinoContextType {
   setPlayerName: (name: string) => void;
 }
 
-const INITIAL_BALANCE = 5000;
+const INITIAL_BALANCE = 500;
 
 const DEFAULT_STATS: PlayerStats = {
   totalWagered: 0,
@@ -99,7 +99,14 @@ const CasinoContext = createContext<CasinoContextType | undefined>(undefined);
 export const CasinoProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [balance, setBalance] = useState<number>(() => {
     const saved = localStorage.getItem('royal_casino_balance');
-    return saved ? Math.max(0, parseInt(saved, 10)) : INITIAL_BALANCE;
+    if (!saved) return INITIAL_BALANCE;
+    const parsed = parseInt(saved, 10);
+    // If a fresh account still had the old default of 5000, enforce new client 500 chips policy
+    const statsSaved = localStorage.getItem('royal_casino_stats');
+    if (parsed === 5000 && (!statsSaved || JSON.parse(statsSaved).totalWagered === 0)) {
+      return INITIAL_BALANCE;
+    }
+    return Math.max(0, parsed);
   });
 
   const [playerName, setPlayerName] = useState<string>(() => {

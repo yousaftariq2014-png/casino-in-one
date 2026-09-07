@@ -87,6 +87,8 @@ export interface DepositOrder {
   accountOrWallet: string;
   status: 'completed' | 'pending' | 'rejected';
   txRef: string;
+  approvedAt?: string;
+  rejectionReason?: string;
 }
 
 export type HouseRtpPreset = 'high_profit' | 'standard' | 'generous';

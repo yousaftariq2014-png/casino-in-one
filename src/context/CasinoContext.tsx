@@ -61,6 +61,8 @@ interface CasinoContextType {
   depositOrders: DepositOrder[];
   recordGameRound: (params: RecordGameRoundParams) => void;
   recordDeposit: (order: Omit<DepositOrder, 'id' | 'timestamp' | 'date'>) => void;
+  approveDepositOrder: (orderId: string) => void;
+  rejectDepositOrder: (orderId: string, reason?: string) => void;
   houseRtpPreset: HouseRtpPreset;
   setHouseRtpPreset: (preset: HouseRtpPreset) => void;
   adminCreditChips: (amount: number, reason?: string) => void;
@@ -339,7 +341,7 @@ export const CasinoProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   }, [playerName, triggerBigWin]);
 
-  // Record real money chip deposit into Cashier ledger
+  // Record real money chip deposit into Cashier ledger as PENDING (Requires Admin Approval)
   const recordDeposit = useCallback((order: Omit<DepositOrder, 'id' | 'timestamp' | 'date'>) => {
     const now = new Date();
     const timeStr = now.toTimeString().split(' ')[0];
@@ -351,12 +353,46 @@ export const CasinoProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       id: orderId,
       timestamp: timeStr,
       date: dateStr,
+      status: 'pending', // Strictly Pending until Admin reviews & approves!
     };
 
     setDepositOrders((prev) => [newOrder, ...prev]);
-    // Credit player chips
-    setBalance((prev) => prev + order.chipsAmount);
-    sound.playBigWin();
+    // Note: Chips are NOT auto-credited. They require Admin Approval!
+    sound.playChip();
+  }, []);
+
+  // Admin approves a pending deposit order and credits chips to player balance
+  const approveDepositOrder = useCallback((orderId: string) => {
+    setDepositOrders((prev) => {
+      const order = prev.find((o) => o.id === orderId);
+      if (!order || order.status === 'completed') return prev;
+
+      // Credit chips directly to player's balance!
+      setBalance((b) => b + order.chipsAmount);
+      sound.playBigWin();
+
+      return prev.map((o) =>
+        o.id === orderId
+          ? {
+              ...o,
+              status: 'completed',
+              approvedAt: new Date().toTimeString().split(' ')[0],
+            }
+          : o
+      );
+    });
+  }, []);
+
+  // Admin rejects a fraudulent or unverified deposit order
+  const rejectDepositOrder = useCallback((orderId: string, reason: string = 'Payment verification rejected by admin') => {
+    setDepositOrders((prev) =>
+      prev.map((o) =>
+        o.id === orderId
+          ? { ...o, status: 'rejected', rejectionReason: reason }
+          : o
+      )
+    );
+    sound.playLose();
   }, []);
 
   const modifyBalance = (amount: number, game: string, wager: number = 0): boolean => {
@@ -550,6 +586,8 @@ export const CasinoProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         depositOrders,
         recordGameRound,
         recordDeposit,
+        approveDepositOrder,
+        rejectDepositOrder,
         houseRtpPreset,
         setHouseRtpPreset,
         adminCreditChips,

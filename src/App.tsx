@@ -139,14 +139,15 @@ function CasinoApp() {
               Cashier
             </button>
             <span>•</span>
-            {/* Discreet Admin link placed at the very end so normal users do not notice it */}
+            {/* Admin Console & Deposit Approvals Button */}
             <button
-              id="footer-admin-discreet-btn"
+              id="footer-admin-btn"
               onClick={handleOpenAdmin}
-              title="System Terminal"
-              className="text-slate-800/40 hover:text-slate-500 transition-colors text-[9px] tracking-widest uppercase"
+              title="Admin Console & Deposit Approvals (Password Required)"
+              className="text-slate-600 hover:text-amber-400 font-bold transition-colors flex items-center gap-1 text-[10px]"
             >
-              Sys
+              <span>🔐</span>
+              <span>Admin Console (منظوری / لاگ ان)</span>
             </button>
           </div>
         </div>

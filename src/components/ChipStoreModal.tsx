@@ -17,7 +17,12 @@ import {
   Check,
 } from 'lucide-react';
 
-export const ChipStoreModal: React.FC = () => {
+interface ChipStoreModalProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+}
+
+export const ChipStoreModal: React.FC<ChipStoreModalProps> = ({ isOpen, onClose }) => {
   const { showStoreModal, setShowStoreModal, recordDeposit, playerName } = useCasino();
 
   const [selectedPkg, setSelectedPkg] = useState<ChipPackage>(CHIP_PACKAGES[1]); // Default to $20 pack
@@ -27,7 +32,9 @@ export const ChipStoreModal: React.FC = () => {
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
   const [copied, setCopied] = useState<boolean>(false);
 
-  if (!showStoreModal) return null;
+  const isVisible = isOpen !== undefined ? isOpen : showStoreModal;
+
+  if (!isVisible) return null;
 
   const totalChips = selectedPkg.chips + selectedPkg.bonusChips;
 
@@ -68,6 +75,7 @@ export const ChipStoreModal: React.FC = () => {
   };
 
   const handleClose = () => {
+    if (onClose) onClose();
     setShowStoreModal(false);
     setIsSuccess(false);
     setIsProcessing(false);

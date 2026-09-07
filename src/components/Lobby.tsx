@@ -279,10 +279,17 @@ export const Lobby: React.FC<LobbyProps> = ({ onSelectGame, onOpenCertificates, 
             </p>
 
             <div className="grid grid-cols-2 gap-2.5 text-left bg-slate-950/70 p-3 rounded-2xl border border-slate-800 text-xs">
-              <div>
-                <span className="text-[10px] text-slate-400 uppercase block font-semibold">Your Balance</span>
-                <span className="font-black text-amber-400 font-serif-luxury text-sm">${balance.toLocaleString()}</span>
-              </div>
+              <button
+                onClick={() => {
+                  sound.playChip();
+                  if (onOpenStore) onOpenStore();
+                }}
+                className="text-left group cursor-pointer"
+                title="Click to view Cashier Store & Buy Chips"
+              >
+                <span className="text-[10px] text-slate-400 uppercase block font-semibold group-hover:text-amber-300 transition-colors">Your Balance ↗</span>
+                <span className="font-black text-amber-400 font-serif-luxury text-sm group-hover:text-amber-300">${balance.toLocaleString()}</span>
+              </button>
               <div>
                 <span className="text-[10px] text-slate-400 uppercase block font-semibold">VIP Status</span>
                 <button
